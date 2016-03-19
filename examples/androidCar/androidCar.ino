@@ -54,8 +54,10 @@ void setup() {
   pinMode(RIGHT_IR_ARRAY,INPUT);
   setupChangeInterrupt(LEFT_IR_ARRAY);
   setupChangeInterrupt(RIGHT_IR_ARRAY);
+  Serial.begin(9600);
   Serial2.begin(9600);
   Serial2.setTimeout(200);
+  Serial.println("Arduino Car");
 }
 
 void loop() {
@@ -64,6 +66,7 @@ void loop() {
   updateLEDs(); //update LEDs depending on the mode we are currently in
   gyro.update(); //integrate gyroscope's readings
   transmitSensorData(); //fetch and transmit the sensor data in the correct intervals if bluetooth is connected
+  delay(1000);
 }
 
 void updateLEDs() {
@@ -91,15 +94,18 @@ void handleOverride() {
   if (int override = pulseIn(OVERRIDE_SIGNAL_PIN, HIGH, MAX_WAVELENGTH)) {
     overrideRelease = millis() + OVERRIDE_TIMEOUT; //time to re-enable Serial communication
     overrideTriggered = true;
+    Serial.println("Serial comms overriden");
   }
 }
 
 void transmitSensorData() {
   if (bluetoothConnected && (millis() - previousTransmission > COM_FREQ)) {
+    
     String out;
     out = "US1-";
     out += frontSonar.getDistance();
     Serial2.println(encodedNetstring(out));
+    Serial.println(out);
     out = "US2-";
     out += frontRightSonar.getDistance();
     Serial2.println(encodedNetstring(out));
@@ -125,7 +131,9 @@ void transmitSensorData() {
     out += razor.getLatestHeading();
     Serial2.println(encodedNetstring(out));
     previousTransmission = millis();
+      
   }
+  
 
 }
 
@@ -139,6 +147,7 @@ void handleInput() {
     }
     if (Serial2.available()) {
       String input = decodedNetstring(Serial2.readStringUntil(','));
+      Serial.println(input);
       if (input.startsWith("m")) {
         int throttle = input.substring(1).toInt();
         car.setSpeed(throttle);
