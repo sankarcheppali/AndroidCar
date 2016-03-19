@@ -58,6 +58,18 @@ void setup() {
   Serial2.begin(9600);
   Serial2.setTimeout(200);
   Serial.println("Arduino Car");
+  Serial.println("Reset the ESC for calibaration....");
+  car.setSpeed(0);
+  delay(25000);
+  Serial.println("Calibaration done, please hold the car in AIR, motor will be tested");
+  Serial.println("Fwd testing");
+  car.setSpeed(10);
+  delay(5000);
+  Serial.println("bwd testing");
+  car.setSpeed(-10);
+  delay(5000);
+  Serial.println("Testing complted");
+  car.setSpeed(0);
 }
 
 void loop() {
@@ -66,7 +78,7 @@ void loop() {
   updateLEDs(); //update LEDs depending on the mode we are currently in
   gyro.update(); //integrate gyroscope's readings
   transmitSensorData(); //fetch and transmit the sensor data in the correct intervals if bluetooth is connected
-  delay(1000);
+  //delay(1000);
 }
 
 void updateLEDs() {
@@ -105,7 +117,7 @@ void transmitSensorData() {
     out = "US1-";
     out += frontSonar.getDistance();
     Serial2.println(encodedNetstring(out));
-    Serial.println(out);
+    //Serial.println(out);
     out = "US2-";
     out += frontRightSonar.getDistance();
     Serial2.println(encodedNetstring(out));
